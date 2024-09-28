@@ -99,7 +99,7 @@ if __name__ == "__main__":
     parser.add_argument('--embed_dim', type=int, help='dimension for embedding')
     parser.add_argument('--log_timestamp', type=str, help='timestamp used to name the log directory')
     parser.add_argument('--seed', type=int, default=42, help='random seed')
-    parser.add_argument('--verbose', type=bool, default=True, help='print intermediate scores')
+    parser.add_argument('--verbose', action='store_true', help='print intermediate scores')
     terminal_args = parser.parse_args()
 
     # Parse arguments from config file
