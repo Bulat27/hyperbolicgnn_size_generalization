@@ -10,7 +10,7 @@ import numpy as np
 import random
 
 import torch
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, matthews_corrcoef
 
 from torch_geometric.loader import DataLoader
 import torch_geometric.transforms as T
@@ -47,17 +47,18 @@ def test(args):
     model.load_state_dict(state_dict)
 
     # Evaluate on test set and store results in csv if specified
-    test_acc, test_f1 = evaluate(args, model, test_loader)
-    print('Test accuracy {:.4f}, f1 score {:.4f}'.format(test_acc, test_f1))
+    test_acc, test_f1, test_mcc = evaluate(args, model, test_loader)
+    print('Test accuracy {:.4f}, f1 score {:.4f} mcc {:.4f}'.format(test_acc, test_f1, test_mcc))
     if args.csv_file is not None:
         with open(args.csv_file, "a") as f:
-            f.write('{}, {}, {:.4f}, {:.4f}\n'.format(args.manifold, args.embed_dim - 1 * (args.manifold == 'lorentz'), test_acc, test_f1))
+            f.write('{}, {}, {:.4f}, {:.4f}, {:.4f}\n'.format(args.manifold, args.embed_dim - 1 * (args.manifold == 'lorentz'), test_acc, test_f1, test_mcc))
 
 def evaluate(args, model, data_loader):
     model.eval()
     correct = 0
     pred_list = []
     true_list = []
+    
     for data in data_loader:
         data = data.to(args.device)
         with torch.no_grad():
@@ -65,9 +66,21 @@ def evaluate(args, model, data_loader):
         correct += pred.eq(data.y).sum().item()
         pred_list.append(pred.cpu().numpy())
         true_list.append(data.y.cpu().numpy())
+    
+    # Convert the lists to numpy arrays
+    y_true = np.concatenate(true_list)
+    y_pred = np.concatenate(pred_list)
+    
+    # Calculate accuracy
     accuracy = correct / len(data_loader.dataset)
-    f1 = f1_score(np.concatenate(true_list), np.concatenate(pred_list), average="macro")
-    return accuracy, f1
+    
+    # Calculate F1 score
+    f1 = f1_score(y_true, y_pred, average="macro")
+    
+    # Calculate Matthews Correlation Coefficient (MCC)
+    mcc = matthews_corrcoef(y_true, y_pred)
+    
+    return accuracy, f1, mcc
 
 
 if __name__ == "__main__":
@@ -102,7 +115,7 @@ if __name__ == "__main__":
         args.csv_file = osp.join(output_dir, terminal_args.csv_file)
         if not osp.isfile(args.csv_file):
             with open(args.csv_file, "w") as f:
-                f.write('manifold, dimensions, accuracy, f1\n')
+                f.write('manifold, dimensions, accuracy, f1, mcc\n')
 
     # Manual seed
     random.seed(terminal_args.seed)
