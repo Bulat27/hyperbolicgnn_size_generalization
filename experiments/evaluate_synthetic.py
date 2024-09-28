@@ -58,11 +58,15 @@ def evaluate(args, model, data_loader):
     correct = 0
     pred_list = []
     true_list = []
-    
+    inference_time = 0
+
     for data in data_loader:
         data = data.to(args.device)
         with torch.no_grad():
+            start_time = time.time()  # Start timer for forward pass
             pred = model(data).max(dim=1)[1]
+            inference_time += time.time() - start_time  # Accumulate inference time
+        
         correct += pred.eq(data.y).sum().item()
         pred_list.append(pred.cpu().numpy())
         true_list.append(data.y.cpu().numpy())
@@ -71,17 +75,13 @@ def evaluate(args, model, data_loader):
     y_true = np.concatenate(true_list)
     y_pred = np.concatenate(pred_list)
     
-    # Calculate accuracy
+    # Calculate accuracy, F1, and MCC
     accuracy = correct / len(data_loader.dataset)
-    
-    # Calculate F1 score
     f1 = f1_score(y_true, y_pred, average="macro")
-    
-    # Calculate Matthews Correlation Coefficient (MCC)
     mcc = matthews_corrcoef(y_true, y_pred)
     
+    print(f"Inference time: {inference_time:.4f} seconds")  # Print total inference time
     return accuracy, f1, mcc
-
 
 if __name__ == "__main__":
     file_dir = osp.dirname(osp.realpath(__file__))
