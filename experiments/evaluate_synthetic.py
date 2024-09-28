@@ -91,7 +91,7 @@ if __name__ == "__main__":
     parser.add_argument('--config', type=str, default=osp.join(file_dir, 'configs/synth_euclidean.yaml'), help='config file')
     parser.add_argument('--embed_dim', type=int, help='dimension for embedding')
     parser.add_argument('--log_timestamp', type=str, help='timestamp used for the log directory where the checkpoint is located')
-    parser.add_argument('--seed', type=int, default=int(time.time()), help='random seed')
+    parser.add_argument('--seed', type=int, default=42, help='random seed')
     parser.add_argument('--csv_file', type=str, help='csv file to output results')
     terminal_args = parser.parse_args()
 
