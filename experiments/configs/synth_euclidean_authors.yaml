@@ -13,7 +13,7 @@ weight_decay: 0.00005
 grad_clip: 5
 dropout: 0.6
 batch_size: 1
-epochs: 40
+epochs: 80
 weight_init: 'xavier'
 
 # Dataset parameters
