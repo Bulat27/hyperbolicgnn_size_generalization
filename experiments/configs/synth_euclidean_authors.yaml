@@ -12,7 +12,7 @@ lr: 0.005
 weight_decay: 0.00005
 grad_clip: 5
 dropout: 0.6
-batch_size: 1
+batch_size: 32
 epochs: 80
 weight_init: 'xavier'
 
