@@ -41,13 +41,15 @@ class SyntheticGraphs(InMemoryDataset):
     """
 
     def __init__(self, root, split='train',
-                 node_num=(100, 500), num_train=2000, num_val=2000, num_test=2000,
+                 train_node_num=(100, 200), test_node_num=(200, 400),  num_train=2000, num_val=2000, num_test=2000,
                  transform=None, pre_transform=None, pre_filter=None):
-        self.node_num = node_num
+        self.train_node_num = train_node_num
+        self.test_node_num = test_node_num
         self.num_train = num_train
         self.num_val = num_val
         self.num_test = num_test
         super(SyntheticGraphs, self).__init__(root, transform, pre_transform, pre_filter)
+
         if split == 'train':
             path = self.processed_paths[0]
         elif split == 'val':
@@ -68,16 +70,17 @@ class SyntheticGraphs(InMemoryDataset):
         return
 
     def process(self):
-        torch.save(self.generate_graphs(self.num_train), self.processed_paths[0])
-        torch.save(self.generate_graphs(self.num_val), self.processed_paths[1])
-        torch.save(self.generate_graphs(self.num_test), self.processed_paths[2])
+        torch.save(self.generate_graphs(self.num_train, self.train_node_num), self.processed_paths[0])
+        torch.save(self.generate_graphs(self.num_val, self.train_node_num), self.processed_paths[1])
+        torch.save(self.generate_graphs(self.num_test, self.test_node_num), self.processed_paths[2])
 
-    def generate_graphs(self, num_graphs):
+    def generate_graphs(self, num_graphs, node_num_range):
         print("Generating graphs...")
         print("erdos_renyi")
         data_list = []
+
         for i in range(num_graphs):
-            num_node = np.random.randint(*self.node_num)
+            num_node = np.random.randint(*node_num_range)
             graph = from_networkx(nx.erdos_renyi_graph(num_node, np.random.uniform(0.1, 1)))
             graph.y = 0
             data_list.append(graph)
@@ -86,7 +89,7 @@ class SyntheticGraphs(InMemoryDataset):
 
         print("small_world")
         for i in range(num_graphs):
-            num_node = np.random.randint(*self.node_num)
+            num_node = np.random.randint(*node_num_range)
             graph = from_networkx(nx.watts_strogatz_graph(num_node, np.random.randint(low=2, high=100), np.random.uniform(0.1, 1)))
             graph.y = 1
             data_list.append(graph)
@@ -96,7 +99,7 @@ class SyntheticGraphs(InMemoryDataset):
 
         print("barabasi_albert")
         for i in range(num_graphs):
-            num_node = np.random.randint(*self.node_num)
+            num_node = np.random.randint(*node_num_range)
             graph = from_networkx(nx.barabasi_albert_graph(num_node, np.random.randint(low=2, high=100)))
             graph.y = 2
             data_list.append(graph)

@@ -25,8 +25,9 @@ def train(args):
         T.ToUndirected(),
         T.OneHotDegree(args.in_features - 1, cat=False)
     ))
-    train_dataset = SyntheticGraphs(dataset_root, split='train', transform=transform, node_num=(args.node_num_min, args.node_num_max), num_train=args.num_train, num_val=args.num_val,  num_test=args.num_test)
-    val_dataset = SyntheticGraphs(dataset_root, split='val', transform=transform, node_num=(args.node_num_min, args.node_num_max), num_train=args.num_train, num_val=args.num_val, num_test=args.num_test)
+
+    train_dataset = SyntheticGraphs(dataset_root, split='train', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val,  num_test=args.num_test)
+    val_dataset = SyntheticGraphs(dataset_root, split='val', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val, num_test=args.num_test)
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=False)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False)
