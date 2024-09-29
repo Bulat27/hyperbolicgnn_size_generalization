@@ -75,7 +75,7 @@ class SyntheticGraphs(InMemoryDataset):
         torch.save(self.generate_graphs(self.num_test, self.test_node_num), self.processed_paths[2])
 
     def generate_graphs(self, num_graphs, node_num_range):
-        print("Generating graphs...")
+        print(f"Generating graphs... of size {node_num_range}")
         print("erdos_renyi")
         data_list = []
 
