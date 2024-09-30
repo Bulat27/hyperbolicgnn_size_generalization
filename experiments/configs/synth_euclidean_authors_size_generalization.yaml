@@ -1,0 +1,24 @@
+# Hyperbolic GNN parameters
+in_features: 1000
+embed_dim: 5
+num_layers: 8
+num_class: 3
+num_centroid: 2000
+manifold: 'euclidean'
+
+# Training parameters
+optimizer: 'amsgrad'
+lr: 0.005
+weight_decay: 0.00005
+grad_clip: 5
+dropout: 0.6
+batch_size: 32
+epochs: 80
+weight_init: 'xavier'
+
+# Dataset parameters
+train_node_num: [100, 200]
+test_node_num: [200, 400]
+num_train: 2000
+num_val: 2000
+num_test: 2000
