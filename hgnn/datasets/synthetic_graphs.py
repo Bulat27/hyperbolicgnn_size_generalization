@@ -70,9 +70,12 @@ class SyntheticGraphs(InMemoryDataset):
         return
 
     def process(self):
-        torch.save(self.generate_graphs(self.num_train, self.train_node_num), self.processed_paths[0])
-        torch.save(self.generate_graphs(self.num_val, self.train_node_num), self.processed_paths[1])
-        torch.save(self.generate_graphs(self.num_test, self.test_node_num), self.processed_paths[2])
+        if self.num_train > 0:
+            torch.save(self.generate_graphs(self.num_train, self.train_node_num), self.processed_paths[0])
+        if self.num_val > 0:
+            torch.save(self.generate_graphs(self.num_val, self.train_node_num), self.processed_paths[1])
+        if self.num_test > 0:
+            torch.save(self.generate_graphs(self.num_test, self.test_node_num), self.processed_paths[2])
 
     def generate_graphs(self, num_graphs, node_num_range):
         print(f"Generating graphs... of size {node_num_range}")
