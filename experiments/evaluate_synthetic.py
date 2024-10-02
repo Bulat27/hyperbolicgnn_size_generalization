@@ -1,7 +1,6 @@
 import os, os.path as osp
 import time
 import warnings
-from progressbar import progressbar
 
 import yaml
 from easydict import EasyDict as edict

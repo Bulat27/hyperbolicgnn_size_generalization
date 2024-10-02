@@ -2,7 +2,10 @@ import os.path as osp
 import yaml
 from easydict import EasyDict as edict
 import argparse
-from hgnn.datasets import SyntheticGraphs  # Assuming this is where the dataset class is
+from hgnn.datasets import SyntheticGraphs
+import numpy as np
+import random
+import torch
 
 def generate_new_test_set(args):
     # Path where the dataset is stored
@@ -38,11 +41,17 @@ if __name__ == "__main__":
     # Command line argument parser
     parser = argparse.ArgumentParser(description='Generate new test set for Synthetic Graphs')
     parser.add_argument('--config', type=str, help='Path to the config file', default='configs/generate_test_set.yaml')
+    parser.add_argument('--seed', type=int, default=42, help='random seed')  # Added seed argument
     terminal_args = parser.parse_args()
 
     # Load the configuration from the YAML file
     with open(terminal_args.config, 'r') as f:
         args = edict(yaml.load(f, Loader=yaml.FullLoader))
+
+    # Set seeds for reproducibility
+    random.seed(terminal_args.seed)
+    np.random.seed(terminal_args.seed)
+    torch.manual_seed(terminal_args.seed)   
 
     # Generate the new test set based on the config
     generate_new_test_set(args)
