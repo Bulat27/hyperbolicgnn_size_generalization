@@ -18,7 +18,7 @@ weight_init: 'xavier' # other option 'default' or empty
 
 # Dataset parameters
 train_node_num: [100, 200]
-test_node_num: [200, 400]  
+test_node_num: [100, 500]  
 num_train: 2000
 num_val: 2000
 num_test: 2000
