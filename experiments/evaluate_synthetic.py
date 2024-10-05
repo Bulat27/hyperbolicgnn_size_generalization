@@ -17,16 +17,28 @@ from hgnn.datasets import SyntheticGraphs
 from hgnn.models import GraphClassification
 from hgnn.nn.manifold import EuclideanManifold, PoincareBallManifold, LorentzManifold
 
-def test(args):
-    # Create and load datasets
-    dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), 'data/SyntheticGraphs')
-    transform = T.Compose((
-        T.ToUndirected(),
-        T.OneHotDegree(args.in_features - 1, cat=False)
-    ))
-    test_dataset = SyntheticGraphs(dataset_root, split='test', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val, num_test=args.num_test)
+from hgnn.datasets.data_utils import load_test_tudataset
 
-    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False)
+def test(args):
+
+    # Load test dataset for SyntheticGraphs or TUDataset
+    
+    if args.dataset == 'synthetic':
+        dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), 'data/SyntheticGraphs')
+        transform = T.Compose((
+            T.ToUndirected(),
+            T.OneHotDegree(args.in_features - 1, cat=False)
+        ))
+
+        test_dataset = SyntheticGraphs(dataset_root, split='test', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val, num_test=args.num_test)
+        test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False)
+    
+    else:
+        # TUDataset case: load the test dataset and raise an error if the split doesn't exist
+        dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), 'data/PROTEINS') # Can be abstracted to any TUDataset!
+
+        test_dataset = load_test_tudataset(dataset_root=dataset_root)
+        test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False)
 
     # Select manifold
     if args.manifold == 'euclidean':
@@ -92,6 +104,7 @@ if __name__ == "__main__":
     parser.add_argument('--log_timestamp', type=str, help='timestamp used for the log directory where the checkpoint is located')
     parser.add_argument('--seed', type=int, default=42, help='random seed')
     parser.add_argument('--csv_file', type=str, help='csv file to output results')
+    parser.add_argument('--dataset', type=str, help='Dataset name (synthetic or PROTEINS)')
     terminal_args = parser.parse_args()
 
     # Parse arguments from config file
@@ -104,6 +117,7 @@ if __name__ == "__main__":
     args.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     experiment_name = 'hgnn_{}_dim{}'.format(args.manifold, args.embed_dim)
     args.checkpoint = osp.join(file_dir, 'logs', experiment_name, terminal_args.log_timestamp, 'best.pt')
+    args.dataset = terminal_args.dataset
 
     # Create csv file for output
     args.csv_file = None

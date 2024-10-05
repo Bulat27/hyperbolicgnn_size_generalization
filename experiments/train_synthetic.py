@@ -18,16 +18,32 @@ from hgnn.datasets import SyntheticGraphs
 from hgnn.models import GraphClassification
 from hgnn.nn.manifold import EuclideanManifold, PoincareBallManifold, LorentzManifold
 
-def train(args):
-    # Create and load datasets
-    dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), 'data/SyntheticGraphs')
-    transform = T.Compose((
-        T.ToUndirected(),
-        T.OneHotDegree(args.in_features - 1, cat=False)
-    ))
+from hgnn.datasets.data_utils import split_tudataset
 
-    train_dataset = SyntheticGraphs(dataset_root, split='train', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val,  num_test=args.num_test)
-    val_dataset = SyntheticGraphs(dataset_root, split='val', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val, num_test=args.num_test)
+def train(args):
+   
+    if args.dataset == 'synthetic':
+         # Create and load datasets
+        dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), 'data/SyntheticGraphs')
+        transform = T.Compose((
+            T.ToUndirected(),
+            T.OneHotDegree(args.in_features - 1, cat=False)
+        ))
+        train_dataset = SyntheticGraphs(dataset_root, split='train', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val,  num_test=args.num_test)
+        val_dataset = SyntheticGraphs(dataset_root, split='val', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val, num_test=args.num_test)
+    
+    else:
+        # For TUDataset, load or create the train and validation splits
+        dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), 'data/PROTEINS') # Can be abstracted to any TUDataset!
+
+        train_dataset, val_dataset = split_tudataset(
+            dataset_root=dataset_root,
+            num_total=args.num_total,
+            num_train=args.num_train,
+            num_val=args.num_val,
+            num_test=args.num_test  
+        )
+
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=False)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False)
@@ -101,6 +117,7 @@ if __name__ == "__main__":
     parser.add_argument('--log_timestamp', type=str, help='timestamp used to name the log directory')
     parser.add_argument('--seed', type=int, default=42, help='random seed')
     parser.add_argument('--verbose', action='store_true', help='print intermediate scores')
+    parser.add_argument('--dataset', type=str, help='Dataset name (synthetic or PROTEINS)')
     terminal_args = parser.parse_args()
 
     # Parse arguments from config file
@@ -110,6 +127,7 @@ if __name__ == "__main__":
     # Additional arguments
     args.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     args.verbose = terminal_args.verbose
+    args.dataset = terminal_args.dataset
     if terminal_args.embed_dim is not None:
         args.embed_dim = terminal_args.embed_dim
 
