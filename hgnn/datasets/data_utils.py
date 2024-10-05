@@ -4,13 +4,29 @@ import random
 from torch_geometric.datasets import TUDataset
 from torch.utils.data import Subset
 
+def get_graph_size(dataset, indices):
+    """
+    Computes the average graph size (number of nodes) for a given subset of graphs.
+    
+    Args:
+        dataset (TUDataset): The full dataset.
+        indices (List[int]): Indices of the graphs in the subset.
+    
+    Returns:
+        float: The average number of nodes in the subset.
+    """
+    total_nodes = 0
+    for idx in indices:
+        total_nodes += dataset[idx].num_nodes  # Access number of nodes for each graph
+    return total_nodes / len(indices)
 
-def get_split_indices(dataset_root, num_total, num_train, num_val, num_test):
+def get_split_indices(dataset_root, dataset, num_total, num_train, num_val, num_test):
     """
     Checks if the split files exist. If they don't, it creates and saves random splits for train/val/test.
     
     Args:
         dataset_root (str): Root directory where the dataset is located.
+        dataset (TUDataset): The full dataset object.
         num_total (int): Total number of graphs available (e.g., 1113 for the PROTEINS dataset).
         num_train (int): Number of training samples.
         num_val (int): Number of validation samples.
@@ -50,6 +66,11 @@ def get_split_indices(dataset_root, num_total, num_train, num_val, num_test):
         np.savetxt(val_idx_path, val_idx, fmt='%d')
         np.savetxt(test_idx_path, test_idx, fmt='%d')
 
+    # Calculate and print the average graph sizes for the splits
+    print(f"Average graph size for train split: {get_graph_size(dataset, train_idx):.2f} nodes")
+    print(f"Average graph size for validation split: {get_graph_size(dataset, val_idx):.2f} nodes")
+    print(f"Average graph size for test split: {get_graph_size(dataset, test_idx):.2f} nodes")
+
     return train_idx, val_idx, test_idx
 
 def split_tudataset(dataset_root, num_total, num_train, num_val, num_test):
@@ -69,14 +90,13 @@ def split_tudataset(dataset_root, num_total, num_train, num_val, num_test):
     dataset = TUDataset(dataset_root, name='PROTEINS')  # Change as needed
 
     # Get the split indices (either loaded or newly generated)
-    train_idx, val_idx, _ = get_split_indices(dataset_root, num_total, num_train, num_val, num_test)
+    train_idx, val_idx, test_idx = get_split_indices(dataset_root, dataset, num_total, num_train, num_val, num_test)
 
     # Create the subsets
     train_dataset = Subset(dataset, train_idx)
     val_dataset = Subset(dataset, val_idx)
 
     return train_dataset, val_dataset
-
 
 def load_test_tudataset(dataset_root):
     """
@@ -106,5 +126,8 @@ def load_test_tudataset(dataset_root):
 
     # Create the test subset
     test_dataset = Subset(dataset, test_idx)
+
+    # Print the average graph size for the test set
+    print(f"Average graph size for test split: {get_graph_size(dataset, test_idx):.2f} nodes")
 
     return test_dataset

@@ -29,7 +29,7 @@ def train(args):
             T.ToUndirected(),
             T.OneHotDegree(args.in_features - 1, cat=False)
         ))
-        train_dataset = SyntheticGraphs(dataset_root, split='train', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val,  num_test=args.num_test)
+        train_dataset = SyntheticGraphs(dataset_root, split='train', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val, num_test=args.num_test)
         val_dataset = SyntheticGraphs(dataset_root, split='val', transform=transform, train_node_num=tuple(args.train_node_num), test_node_num=tuple(args.test_node_num), num_train=args.num_train, num_val=args.num_val, num_test=args.num_test)
     
     else:
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     parser.add_argument('--log_timestamp', type=str, help='timestamp used to name the log directory')
     parser.add_argument('--seed', type=int, default=42, help='random seed')
     parser.add_argument('--verbose', action='store_true', help='print intermediate scores')
-    parser.add_argument('--dataset', type=str, help='Dataset name (synthetic or PROTEINS)')
+    parser.add_argument('--dataset', type=str, default ='synthetic', help='Dataset name (synthetic or PROTEINS)')
     terminal_args = parser.parse_args()
 
     # Parse arguments from config file
