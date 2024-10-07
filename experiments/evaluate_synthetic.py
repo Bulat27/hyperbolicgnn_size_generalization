@@ -23,7 +23,7 @@ def test(args):
 
     # Load test dataset for SyntheticGraphs or TUDataset
     
-    if args.dataset == 'synthetic':
+    if args.dataset == 'SyntheticGraphs':
         dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), 'data/SyntheticGraphs')
         transform = T.Compose((
             T.ToUndirected(),
@@ -35,9 +35,9 @@ def test(args):
     
     else:
         # TUDataset case: load the test dataset and raise an error if the split doesn't exist
-        dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), 'data/PROTEINS') # Can be abstracted to any TUDataset!
+        dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), f'data/TU/{args.dataset}')
 
-        test_dataset = load_test_tudataset(dataset_root=dataset_root)
+        test_dataset = load_test_tudataset(dataset_name=args.dataset, dataset_root=dataset_root)
         test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False)
 
     # Select manifold
@@ -104,7 +104,6 @@ if __name__ == "__main__":
     parser.add_argument('--log_timestamp', type=str, help='timestamp used for the log directory where the checkpoint is located')
     parser.add_argument('--seed', type=int, default=42, help='random seed')
     parser.add_argument('--csv_file', type=str, help='csv file to output results')
-    parser.add_argument('--dataset', type=str, help='Dataset name (synthetic or PROTEINS)')
     terminal_args = parser.parse_args()
 
     # Parse arguments from config file
@@ -117,7 +116,6 @@ if __name__ == "__main__":
     args.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     experiment_name = 'hgnn_{}_dim{}'.format(args.manifold, args.embed_dim)
     args.checkpoint = osp.join(file_dir, 'logs', experiment_name, terminal_args.log_timestamp, 'best.pt')
-    args.dataset = terminal_args.dataset
 
     # Create csv file for output
     args.csv_file = None

@@ -17,6 +17,7 @@ epochs: 80
 weight_init: 'xavier'
 
 # Dataset parameters
+dataset: 'SyntheticGraphs'
 train_node_num: [100, 500]
 test_node_num: [100, 500]
 num_train: 2000

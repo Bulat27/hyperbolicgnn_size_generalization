@@ -73,7 +73,7 @@ def get_split_indices(dataset_root, dataset, num_total, num_train, num_val, num_
 
     return train_idx, val_idx, test_idx
 
-def split_tudataset(dataset_root, num_total, num_train, num_val, num_test):
+def split_tudataset(dataset_name, dataset_root, num_total, num_train, num_val, num_test):
     """
     Splits the TUDataset based on saved or newly generated indices for train/validation.
     
@@ -87,7 +87,7 @@ def split_tudataset(dataset_root, num_total, num_train, num_val, num_test):
     Returns:
         Tuple[Subset, Subset]: Train and validation subsets.
     """
-    dataset = TUDataset(dataset_root, name='PROTEINS')  # Change as needed
+    dataset = TUDataset(dataset_root, name=dataset_name)
 
     # Get the split indices (either loaded or newly generated)
     train_idx, val_idx, test_idx = get_split_indices(dataset_root, dataset, num_total, num_train, num_val, num_test)
@@ -98,7 +98,7 @@ def split_tudataset(dataset_root, num_total, num_train, num_val, num_test):
 
     return train_dataset, val_dataset
 
-def load_test_tudataset(dataset_root):
+def load_test_tudataset(dataset_name, dataset_root):
     """
     Loads the test dataset based on saved indices. 
     If the test split file does not exist, it raises an error.
@@ -112,7 +112,7 @@ def load_test_tudataset(dataset_root):
     Raises:
         FileNotFoundError: If the test split file does not exist.
     """
-    dataset = TUDataset(dataset_root, name='PROTEINS')  # Change as needed
+    dataset = TUDataset(dataset_root, name=dataset_name)  # Change as needed
 
     # Path to the test split file
     test_idx_path = osp.join(dataset_root, 'test_idx.txt')

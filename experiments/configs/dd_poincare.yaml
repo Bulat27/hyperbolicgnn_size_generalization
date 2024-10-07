@@ -1,10 +1,10 @@
 # Hyperbolic GNN parameters
-in_features: 3
+in_features: 89
 embed_dim: 5
 num_layers: 5
 num_class: 2
 num_centroid: 100
-manifold: 'euclidean'
+manifold: 'poincare'
 
 # Training parameters
 optimizer: 'adam'
@@ -17,8 +17,8 @@ epochs: 80
 weight_init: 'xavier' # other option 'default' or empty
 
 # Dataset parameters
-dataset: 'PROTEINS'
-num_total: 1113
-num_train: 511
-num_val: 56
-num_test: 112
+dataset: 'DD'
+num_total: 1178
+num_train: 533
+num_val: 59
+num_test: 118

@@ -22,7 +22,7 @@ from hgnn.datasets.data_utils import split_tudataset
 
 def train(args):
    
-    if args.dataset == 'synthetic':
+    if args.dataset == 'SyntheticGraphs':
          # Create and load datasets
         dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), 'data/SyntheticGraphs')
         transform = T.Compose((
@@ -34,9 +34,10 @@ def train(args):
     
     else:
         # For TUDataset, load or create the train and validation splits
-        dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), 'data/PROTEINS') # Can be abstracted to any TUDataset!
+        dataset_root = osp.join(osp.dirname(osp.realpath(__file__)), f'data/TU/{args.dataset}')
 
         train_dataset, val_dataset = split_tudataset(
+            dataset_name = args.dataset,
             dataset_root=dataset_root,
             num_total=args.num_total,
             num_train=args.num_train,
@@ -117,7 +118,6 @@ if __name__ == "__main__":
     parser.add_argument('--log_timestamp', type=str, help='timestamp used to name the log directory')
     parser.add_argument('--seed', type=int, default=42, help='random seed')
     parser.add_argument('--verbose', action='store_true', help='print intermediate scores')
-    parser.add_argument('--dataset', type=str, default ='synthetic', help='Dataset name (synthetic or PROTEINS)')
     terminal_args = parser.parse_args()
 
     # Parse arguments from config file
@@ -127,7 +127,6 @@ if __name__ == "__main__":
     # Additional arguments
     args.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     args.verbose = terminal_args.verbose
-    args.dataset = terminal_args.dataset
     if terminal_args.embed_dim is not None:
         args.embed_dim = terminal_args.embed_dim
 
